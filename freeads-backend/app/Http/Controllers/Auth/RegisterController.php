@@ -19,7 +19,7 @@ class RegisterController extends Controller
             'phone' => 'required|string|max:20',
         ]);
 
-        //créer l'utilisateur
+        //créer l'utilisateur en bd
 
         $user = User::create([
             'login' => $request->login,
