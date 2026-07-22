@@ -11,7 +11,7 @@ use Illuminate\Auth\Events\Registered;
 class RegisterController extends Controller
 {
     //Validation des données du formulare
-    function store(Request $request) {
+    public function store(Request $request) {
         $request->validate([
             'login' => 'required|string|max:255|unique:users',
             'email' => 'required|email|unique:users',
