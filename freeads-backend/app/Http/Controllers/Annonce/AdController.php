@@ -17,7 +17,7 @@ class AdController extends Controller
         //Ad::latest()->get()
         $ads = Ad::with('user')->get();
         return response()->json([
-            'message' => 'Toutes les annonces sont bien recupérées',
+            'message' => 'Annonces affichés avec succès',
             'ads' => $ads
         ], 200);
     }
@@ -56,7 +56,7 @@ class AdController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Annonce enregistrée en bd'
+            'message' => 'Annonce enregistrée avec succès'
         ], 201);
     }
 
@@ -96,7 +96,7 @@ class AdController extends Controller
         $validatedData = $request->validate([
         'title' => 'nullable|string',
         'category' => 'nullable|string',
-        'description' => 'required|string',
+        'description' => 'nullable|string',
         'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         'price' => 'nullable|numeric|min:0',
         'location' => 'nullable|string',
