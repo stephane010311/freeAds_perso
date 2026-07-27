@@ -80,8 +80,63 @@ export const useAuthStore = defineStore('auth', () => {
             localStorage.removeItem('token')    
         }   
 
-}
+    }
 
+    async function fetchProfile() {
+        try {
+            if (!token.value) return
+
+            const response = await axios.get('http://127.0.0.1:8000/api/me', {
+                headers: {
+                    Authorization: `Bearer ${token.value}`
+                }
+            })
+
+            // On met à jour la variable réactive user du store
+            user.value = response.data.user
+            return response.data
+        } catch (error: any) {
+            console.error('Erreur lors de la récupération du profil :', error)
+            throw error.response?.data || { message: "Une erreur est survenue" }
+        }
+    }
+
+    async function updateProfile(data: { login?: string; email?: string; password?: string; password_confirmation?: string; phone?: string }) {
+        try {
+            const response = await axios.put('http://127.0.0.1:8000/api/me', data, {
+                headers: {
+                    Authorization: `Bearer ${token.value}`
+                }
+            })
+
+            // On met à jour le state user avec les nouvelles infos retournées
+            user.value = response.data.user
+            return response.data
+        } catch (error: any) {
+            console.error('Erreur lors de la mise à jour du profil :', error)
+            throw error.response?.data || { message: "Une erreur est survenue" }
+        }
+    }
+
+    async function deleteProfile() {
+        try {
+            if (token.value) {
+                await axios.delete('http://127.0.0.1:8000/api/me', {
+                    headers: {
+                        Authorization: `Bearer ${token.value}`
+                    }
+                })
+            }
+        } catch (error: any) {
+            console.error('Erreur lors de la suppression du compte :', error)
+            throw error.response?.data || { message: "Une erreur est survenue" }
+        } finally {
+            // Dans tous les cas, on déconnecte le user et nettoie le localStorage
+            token.value = null
+            user.value = null
+            localStorage.removeItem('token')
+        }
+    }
 
     return {
         token,
@@ -90,6 +145,10 @@ export const useAuthStore = defineStore('auth', () => {
         isAdmin, 
         register,
         login,
-        logout
+        logout,
+        fetchProfile,
+        updateProfile,
+        deleteProfile
+
     }
 })

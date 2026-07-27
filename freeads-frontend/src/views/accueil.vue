@@ -11,20 +11,20 @@
         </a>
 
         <!-- Menu principal -->
-        <div class="hidden md:flex items-center space-x-6 text-sm font-semibold">
+        <!-- <div class="hidden md:flex items-center space-x-6 text-sm font-semibold">
           <a href="#" class="hover:text-yellow-200 transition">Toutes les annonces</a>
           <a href="#" class="hover:text-yellow-200 transition">Mes favoris</a>
           <a href="#" class="hover:text-yellow-200 transition">Mes messages</a>
-        </div>
+        </div> -->
 
         <!-- Actions utilisateur -->
         <div class="flex items-center space-x-3">
-          <button class="bg-yellow-400 hover:bg-yellow-300 text-red-900 font-bold py-2 px-4 rounded-lg text-sm transition transform hover:scale-105 shadow flex items-center space-x-1">
+          <!-- <button class="bg-yellow-400 hover:bg-yellow-300 text-red-900 font-bold py-2 px-4 rounded-lg text-sm transition transform hover:scale-105 shadow flex items-center space-x-1">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
             </svg>
             <span>Publier une annonce</span>
-          </button>
+          </button> -->
           
           <!-- <a href="#" class="text-sm font-semibold hover:underline hidden sm:inline-block">
             Connexion
@@ -34,6 +34,17 @@
             <span class="text-sm font-bold text-yellow-300">
               Hiii, {{ authStore.user?.login || authStore.user?.email }}
             </span>
+
+            <!-- À placer dans la navbar de ta page Accueil -->
+          <router-link 
+            to="/profile" 
+            class="bg-white text-red-600 hover:bg-gray-100 font-bold py-2 px-4 rounded-lg text-sm transition shadow flex items-center space-x-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <span>Mon Profil</span>
+          </router-link>
 
             <button 
               @click="handleLogout" 
@@ -306,11 +317,22 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
 const router = useRouter()
+
+onMounted(async () => {
+  if (authStore.isAuthenticated && !authStore.user) {
+    try {
+      await authStore.fetchProfile()
+    } catch (error) {
+      console.error('Erreur lors de la récupération du profil :', error)
+    }
+  }
+})
 
 // méthode de déconnexion 
 const handleLogout = async () => {
