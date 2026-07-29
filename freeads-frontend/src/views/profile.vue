@@ -55,7 +55,6 @@
 
     <!-- 3. CONTENU PRINCIPAL -->
     <main class="container mx-auto max-w-4xl px-4 py-10 flex-grow">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         
         <!-- Sidebar d'onglets -->
         <!-- <div class="space-y-2">
@@ -82,12 +81,22 @@
               Modifier mes informations
             </h2>
 
+            <!-- Message de succès -->
+            <div v-if="successMessage" class="mb-5 p-3 bg-green-100 border border-green-300 text-green-800 rounded-xl text-xs font-bold text-center">
+            {{ successMessage }}
+            </div>
+
+            <!-- Message d'erreur -->
+            <div v-if="errorMessage" class="mb-5 p-3 bg-red-100 border border-red-300 text-red-800 rounded-xl text-xs font-bold text-center">
+            {{ errorMessage }}
+            </div>
+
             <form class="space-y-5" @submit.prevent="handleProfile">
               <!-- Login -->
               <div>
                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Login</label>
                 <input 
-                  v-model = "login"
+                  v-model="login"
                   type="text" 
                   placeholder="Ex: StephaneK"
                   class="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:bg-white focus:border-red-500 text-sm text-gray-800 transition"
@@ -98,7 +107,7 @@
               <div>
                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Adresse E-mail</label>
                 <input 
-                  v-model = "email"
+                  v-model="email"
                   type="email" 
                   placeholder="exemple@mail.com"
                   class="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:bg-white focus:border-red-500 text-sm text-gray-800 transition"
@@ -109,7 +118,7 @@
               <div>
                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Numéro de Téléphone</label>
                 <input 
-                  v-model = "phone"
+                  v-model="phone"
                   type="text" 
                   placeholder="0102030405"
                   class="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:bg-white focus:border-red-500 text-sm text-gray-800 transition"
@@ -125,7 +134,7 @@
                   <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Nouveau mot de passe</label>
                     <input 
-                      v-model = "password"
+                      v-model="password"
                       type="password" 
                       placeholder="••••••••"
                       class="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:bg-white focus:border-red-500 text-sm text-gray-800 transition"
@@ -134,7 +143,7 @@
                   <div>
                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Confirmation</label>
                     <input 
-                      v-model = "password_confirmation"
+                      v-model="password_confirmation"
                       type="password" 
                       placeholder="••••••••"
                       class="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:bg-white focus:border-red-500 text-sm text-gray-800 transition"
@@ -159,14 +168,13 @@
               La suppression de votre compte entraînera la suppression définitive de vos annonces et de vos données personnelles.
             </p>
 
-            <button class="bg-white hover:bg-red-600 text-red-600 hover:text-white border border-red-300 font-bold py-2 px-4 rounded-xl text-xs transition shadow-sm">
+            <button @click="handleDestroy" class="bg-white hover:bg-red-600 text-red-600 hover:text-white border border-red-300 font-bold py-2 px-4 rounded-xl text-xs transition shadow-sm">
               Supprimer mon compte définitivement
             </button>
           </div>
 
         </div>
 
-      </div>
     </main>
 
     <!-- 4. FOOTER -->
@@ -223,6 +231,9 @@ const password = ref('')
 const password_confirmation = ref('')
 const phone = ref('')
 
+const successMessage = ref('')
+const errorMessage = ref('')
+
  // Récupération du login ou fallback
 const userLogin = computed(() => authStore.user?.login || 'Utilisateur')
 
@@ -242,6 +253,11 @@ onMounted(async () =>{
 })
 
 const handleProfile = async () =>{
+    
+// On réinitialise les messages
+  successMessage.value = ''
+  errorMessage.value = ''
+
     try{
         //On prépare les données de base
         const updateData = {
@@ -262,11 +278,33 @@ const handleProfile = async () =>{
         //On réinitialise les champs de mot de passe après le succès
         password.value = ''
         password_confirmation.value = ''
+
+        // Message de succès
+        successMessage.value = 'Profil mis à jour avec succès !'
+
+        setTimeout(() => {
+            successMessage.value = ''
+        }, 3000)
         
     }catch (error){
         console.error('Erreur de mise à jour :', error)
+        errorMessage.value = error.response?.data?.message || 'Une erreur est survenue lors de la mise à jour.'
     }
   
+}
+
+const handleDestroy = async () => {
+    const confirmed = confirm('Êtes-vous sûr de vouloir supprimer définitivement votre compte ?')
+
+    if(!confirmed) return
+
+    try{
+        await authStore.deleteProfile()
+        router.push('/login')
+    } catch(error){
+        console.error('Erreur lors de la suppression du compte :', error)
+        errorMessage.value = error.response?.data?.message || 'Impossible de supprimer le compte.'
+    }
 }
 
 const handleLogout = async () =>{
