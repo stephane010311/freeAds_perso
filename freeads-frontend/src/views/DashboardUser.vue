@@ -157,10 +157,13 @@
                   </td>
                   <td class="py-4 px-4 text-center">
                     <div class="inline-flex items-center space-x-2">
-                      <button class="bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold px-3 py-1.5 rounded-lg text-xs transition border border-blue-200">
+                      <button 
+                      class="bg-blue-50 text-blue-600 hover:bg-blue-100 font-bold px-3 py-1.5 rounded-lg text-xs transition border border-blue-200">
                         Éditer
                       </button>
-                      <button class="bg-red-50 text-red-600 hover:bg-red-100 font-bold px-3 py-1.5 rounded-lg text-xs transition border border-red-200">
+                      <button @click="handleDelete(ad.id, ad.title)" 
+                      :disabled="adStore.isLoading"
+                      class="bg-red-50 text-red-600 hover:bg-red-100 font-bold px-3 py-1.5 rounded-lg text-xs transition border border-red-200">
                         Supprimer
                       </button>
                     </div>
@@ -188,5 +191,20 @@ const adStore = useAdStore()
 onMounted (async () =>{
     await adStore.fetchAds()
 })
+
+// Function de gestion de la suppression
+const handleDelete = async (id, title) => {
+    // 1. Demande de confirmation à l'utilisateur
+    const confirmed = confirm(`Êtes-vous sûr de vouloir supprimer l'annonce "${title}" ?`)
     
+    if (confirmed) {
+        try {
+            await adStore.deleteAd(id)
+            // Optionnel : afficher un message de succès (ex: toast ou alert)
+        } catch (err) {
+            // L'erreur est déjà capturée dans le store, mais tu peux ajouter une alerte si besoin
+            alert("Impossible de supprimer l'annonce pour le moment.")
+        }
+  }
+    }
 </script>
